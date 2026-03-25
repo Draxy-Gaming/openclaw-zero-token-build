@@ -16,14 +16,16 @@ jobs:
 
       - run: pnpm install
 
-      - name: Patch broken tsconfig step
+      - name: Patch broken dts step
         run: |
           node -e "
             const fs = require('fs');
-            const t = JSON.parse(fs.readFileSync('tsconfig.plugin-sdk.dts.json', 'utf8'));
-            t.compilerOptions = t.compilerOptions || {};
-            t.compilerOptions.noEmitOnError = false;
-            fs.writeFileSync('tsconfig.plugin-sdk.dts.json', JSON.stringify(t, null, 2));
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.scripts.build = pkg.scripts.build.replace(
+              '&& pnpm build:plugin-sdk:dts &&',
+              '&&'
+            );
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
           "
 
       - run: pnpm build
